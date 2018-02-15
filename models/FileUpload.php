@@ -21,6 +21,7 @@ use Yii;
  * @property string $relative_path
  * @property string $refer_table
  * @property string $create_time
+ * @version 1.0.1
  */
 class FileUpload extends \yii\db\ActiveRecord
 {
@@ -164,7 +165,11 @@ class FileUpload extends \yii\db\ActiveRecord
         return $out;
     }
 
-    public function getAbsoluteUrlFile($options=null, $withBaseUrl=false)
+    /**
+    * Return full file url, absolute or relative, based on isRequiredAbsolute parameter
+    * @param isRequiredAbsolute boolean Specify if it needed baseUrl
+    */
+    public function getAbsoluteUrlFile($options=null, $isRequiredAbsolute=false)
     {
         $out = null;
         $rel = $this->relativePathFromDbRecord();
@@ -173,6 +178,21 @@ class FileUpload extends \yii\db\ActiveRecord
         {
             $baseUrl = \sfmobile\ext\fileUploader\Module::getInstance()->fileUploadBaseUrl;
             $out = $baseUrl.$rel;
+
+            // If it is requested an absolute url, it checks that fileUploadbaseUrl is already in absolute form.
+            // If it is already absolute, it does nothing, otherwise apply baseUrl.
+            if($isRequiredAbsolute)
+            {
+                if(\sfmobile\ext\fileUploader\Module::getInstance()->isFileUploadBaseUrlAbsolute)
+                {
+                    // do nothing because fileUploadBaseUrl is already absolute
+                }
+                else
+                {
+                    // it apply host base url
+                    $out = \yii\helpers\Url::to($out, true);
+                }
+            }
 
         }
         return $out;

@@ -3,7 +3,7 @@
 /**
  * @copyright Copyright &copy; Fabrizio Caldarelli, sfmobile.it, 2017
  * @package yii2-file-uploader
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace sfmobile\ext\fileUploader;
@@ -28,6 +28,13 @@ class Module extends \yii\base\Module
      * @since 1.0.1
      */
     public $dbTableName = 'tbl_file_upload';
+
+    /**
+     * Specify if file upload base url is absolute or not
+     * @since 1.0.2
+     */
+    public $isFileUploadBaseUrlAbsolute = false;
+
 
     /**
      * @inheritdoc
