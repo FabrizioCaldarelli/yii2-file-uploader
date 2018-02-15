@@ -27,6 +27,7 @@ Configuration
 
 Once the extension is installed, configure it in config\main.php setting imageBaseUrl, fileUploadBasePath and fileUploadBaseUrl :
 
+1) Add fileUploader module to config.php
 ```php
 'modules' => [
     'fileUploader' => [
@@ -41,15 +42,20 @@ Once the extension is installed, configure it in config\main.php setting imageBa
         'isFileUploadBaseUrlAbsolute' => false,
 
     ],
-],    
+],
 ```
 
-Then add the module in bootstrap section of config\main.php
+2) Add the module in bootstrap section of config\main.php
 
 ```
 'bootstrap' => ['log', 'fileUploader'],
 ```
 
+3) Apply database migration
+
+```
+yii migrate --migrationPath=@vendor/fabriziocaldarelli/yii2-file-uploader/migrations
+```
 
 Usage
 -----
@@ -72,7 +78,7 @@ and inside the controller change standard actionCreate as:
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // Sync files
-            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);             
+            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -94,12 +100,27 @@ and standard actionUpdate as:
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // Sync files
-            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);            
+            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
                 'model' => $model,
             ]);
+        }
+    }
+```
+
+Finally, If you link files to a Model class, when you delete a record, you have to remove also the files inside afterDelete() method of Model class.
+
+```
+    public function afterDelete()
+    {
+        parent::afterDelete();
+
+        $files = \sfmobile\ext\fileUploader\models\FileUpload::find()->andWhere(['refer_id' => $this->id])->all();
+        foreach($files as $f)
+        {
+            $f->delete();
         }
     }
 ```
