@@ -27,7 +27,7 @@ Configuration
 
 Once the extension is installed, configure it in config\main.php setting imageBaseUrl, fileUploadBasePath and fileUploadBaseUrl :
 
-1) Add fileUploader module to config.php
+**1) Add fileUploader module to config.php**
 ```php
 'modules' => [
     'fileUploader' => [
@@ -45,13 +45,13 @@ Once the extension is installed, configure it in config\main.php setting imageBa
 ],
 ```
 
-2) Add the module in bootstrap section of config\main.php
+**2) Add the module in bootstrap section of config\main.php**
 
 ```
 'bootstrap' => ['log', 'fileUploader'],
 ```
 
-3) Apply database migration
+**3) Apply database migration**
 
 ```
 yii migrate --migrationPath=@vendor/fabriziocaldarelli/yii2-file-uploader/migrations
