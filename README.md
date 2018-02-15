@@ -37,7 +37,7 @@ Once the extension is installed, configure it in config\main.php setting imageBa
         'fileUploadBasePath' =>  '/var/www/vhosts/your_hosting/public_files',
         'fileUploadBaseUrl' =>  '/public_files',
         
-        'dbTableName' => 'file_upload',
+        'dbTableName' => 'tbl_file_upload',
 
     ], 
 ],    
