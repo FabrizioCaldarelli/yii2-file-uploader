@@ -38,6 +38,8 @@ Once the extension is installed, configure it in config\main.php setting imageBa
 
         'dbTableName' => 'tbl_file_upload',
 
+        'isFileUploadBaseUrlAbsolute' => false,
+
     ],
 ],    
 ```
