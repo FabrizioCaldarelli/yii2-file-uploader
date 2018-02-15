@@ -32,7 +32,7 @@ class Module extends \yii\base\Module
      * Db table name
      * @since 1.0.1
      */
-    public $dbTableName = 'file_upload';
+    public $dbTableName = 'tbl_file_upload';
 
     /**
      * @inheritdoc
