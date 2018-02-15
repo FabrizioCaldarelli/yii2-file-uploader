@@ -33,13 +33,12 @@ Once the extension is installed, configure it in config\main.php setting imageBa
         'class' => 'sfmobile\ext\fileUploader\Module',
 
         // Customize properties
-        'imagesBaseUrl' => 'http://path.to.your.user/',
         'fileUploadBasePath' =>  '/var/www/vhosts/your_hosting/public_files',
         'fileUploadBaseUrl' =>  '/public_files',
-        
+
         'dbTableName' => 'tbl_file_upload',
 
-    ], 
+    ],
 ],    
 ```
 
@@ -56,7 +55,7 @@ Usage
 Finally, inside view file insert code to show Kartik File Input widget:
 
 ```php
-<?= \sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::widget(['model' => $model, 'modelName' => 'nameOfModelClass', 'attributeName' => 'attributeNameOfModelClass', 'acceptedTypes' => 'image/*', 'maxFileCount' => 999]); ?> 
+<?= \sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::widget(['model' => $model, 'modelName' => 'nameOfModelClass', 'attributeName' => 'attributeNameOfModelClass', 'acceptedTypes' => 'image/*', 'maxFileCount' => 999]); ?>
 ```
 
 and inside the controller change standard actionCreate as:
@@ -65,11 +64,11 @@ and inside the controller change standard actionCreate as:
     public function actionCreate()
     {
         $model = new Model();
-        
+
         \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-        	
+
             // Sync files
             \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);             
             return $this->redirect(['view', 'id' => $model->id]);
@@ -87,11 +86,11 @@ and standard actionUpdate as:
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        
+
         \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            
+
             // Sync files
             \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);            
             return $this->redirect(['view', 'id' => $model->id]);

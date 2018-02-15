@@ -14,11 +14,6 @@ namespace sfmobile\ext\fileUploader;
 class Module extends \yii\base\Module
 {
     /**
-     * Base url for images
-     */
-    public $imagesBaseUrl;
-
-    /**
      * Base path for file uploaded
      */
     public $fileUploadBasePath;
