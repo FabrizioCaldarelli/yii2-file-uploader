@@ -13,7 +13,7 @@ class m171120_201016_create_tbl_file_upload_table extends Migration
     public function up()
     {
         $this->createTable('tbl_file_upload', [
-            'id' => $this->bigInteger()->primaryKey(),
+            'id' => $this->primaryKey(),
             'user_id' => $this->integer()->notNull(),
             'section' => $this->string(150)->notNull(),
             'category' => $this->string(150)->notNull(),

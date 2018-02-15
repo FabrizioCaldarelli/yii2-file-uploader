@@ -48,20 +48,20 @@ class FileUpload extends \yii\db\ActiveRecord
             }
         }
     }
-    
+
     /**
-	 ************************************** 
+	 **************************************
 	 * Sync data with and from database
-	 ************************************** 
-    */	
+	 **************************************
+    */
     public static function syncDatabaseFromListFilesSession($lstFilesInSession, $section, $category, $userId, $referOptions)
     {
         $arrOut = [];
-		
+
 		$conditions = array_merge(['section' => $section, 'category' => $category], $referOptions);
-		
+
         $lstFilesUpload = self::find()->where($conditions)->all();
-        
+
         foreach($lstFilesInSession as $fis)
         {
             $fu = new self();
@@ -76,15 +76,15 @@ class FileUpload extends \yii\db\ActiveRecord
             $fu->approved = 'yes';
             $fu->create_time = date('Y-m-d H:i:s');
 
-			// Fill refer_id and other refers			
+			// Fill refer_id and other refers
 			foreach($referOptions as $rk=>$rv)
 			{
 				$fu->setAttribute($rk, $rv);
 			}
-			
+
             $fu->relative_path = $fu->relativePathFromDbRecord();
-			
-            
+
+
             // Controlla se il file già esiste
             $keyTrovatoTestFU = -1;
             $arrKeysFilesUpload = array_keys($lstFilesUpload);
@@ -94,7 +94,7 @@ class FileUpload extends \yii\db\ActiveRecord
                 $testFU = $lstFilesUpload[ $tempKey ];
                 if(($testFU->file_name_original == $fu->file_name_original)&&($testFU->file_size == $fu->file_size)) $keyTrovatoTestFU = $tempKey;
             }
-			
+
             // Il file esiste già
             if($keyTrovatoTestFU!=-1)
             {
@@ -102,22 +102,22 @@ class FileUpload extends \yii\db\ActiveRecord
                 unset($lstFilesUpload[$keyTrovatoTestFU]);
             }
             else {
-                
+
                 $retSave = $fu->save();
-				
+
                 if($retSave)
                 {
                     $fuPathFile = $fu->absolutePathFile;
-                    
+
                     $basepath = dirname($fuPathFile);
                     if(file_exists($basepath) == false) mkdir($basepath, 0777, true);
-                    
+
                     file_put_contents($fuPathFile, $fis->data);
-                    
+
                     $arrOut[] = $fu;
                 }
             }
-            
+
         }
 
         // Elimina gli ultimi file rimasti precedentemente
@@ -127,35 +127,35 @@ class FileUpload extends \yii\db\ActiveRecord
         }
 
         return $arrOut;
-    } 
-    
+    }
+
     public static function syncFilesFromSessiondAndRemoveFromSession($modelName, $attributeName, $section, $category, $userId, $referOptions)
     {
         $lstFileInSession = FileInSession::listItems($modelName, $attributeName);
-    	
+
         self::syncDatabaseFromListFilesSession($lstFileInSession, $section, $category, $userId, $referOptions);
-        FileInSession::deleteListItems($modelName, $attributeName);        
+        FileInSession::deleteListItems($modelName, $attributeName);
     }
-    
+
     /**
-	 ************************************** 
+	 **************************************
 	 * Path and Url
-	 ************************************** 
+	 **************************************
     */
     public function relativePathFromDbRecord()
     {
         //if(($fu->section == 'sec')&&($fu->category == 'cat')) $rel = self::relativePath_recordDb($fu);
-                
+
         $rel = sprintf('/%s/%s/%d/%s', $this->section, $this->category, $this->refer_id, $this->file_name);
-        
+
         return $rel;
-    }     
-    
+    }
+
     public function getAbsolutePathFile()
     {
         $out = null;
         $rel = $this->relativePathFromDbRecord();
-		
+
         if($rel != null)
         {
             $basePath = \sfmobile\ext\fileUploader\Module::getInstance()->fileUploadBasePath;
@@ -163,29 +163,29 @@ class FileUpload extends \yii\db\ActiveRecord
         }
         return $out;
     }
-	
+
     public function getAbsoluteUrlFile($options=null, $withBaseUrl=false)
     {
         $out = null;
         $rel = $this->relativePathFromDbRecord();
-        
+
         if($rel != null)
         {
             $baseUrl = \sfmobile\ext\fileUploader\Module::getInstance()->fileUploadBaseUrl;
             $out = $baseUrl.$rel;
-            
-        }
-        return $out;       
-    } 	
 
-    
-    
+        }
+        return $out;
+    }
+
+
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'tbl_file_upload';
+        return \sfmobile\ext\fileUploader\Module::getInstance()->dbTableName;
     }
 
     /**
