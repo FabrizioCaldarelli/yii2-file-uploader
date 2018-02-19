@@ -19,9 +19,9 @@ foreach($filesInSession as $fis)
     if($detectPreviewType)
     {
         if(strpos($mimeType, 'image/') === 0) $previewType = 'image';
-        if(strpos($mimeType, 'text/html') === 0) $previewType = 'html';
         if(strpos($mimeType, 'video/') === 0) $previewType = 'video';
         if(strpos($mimeType, 'audio/') === 0) $previewType = 'audio';
+        if(strpos($mimeType, 'text/html') === 0) $previewType = 'html';
         if(strpos($mimeType, 'application/pdf') === 0) $previewType = 'pdf';
     }
 
