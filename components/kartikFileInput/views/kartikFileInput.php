@@ -1,10 +1,12 @@
 <?php
 
+$modelName = \yii\helpers\StringHelper::basename(get_class($model));
+
 $moduleId = (\sfmobile\ext\fileUploader\Module::getInstance()->id);
 
 $initialPreview = [];
 $initialPreviewConfig = [];
-$filesInSession = \sfmobile\ext\fileUploader\models\FileInSession::listItems($modelName, $attributeName);
+$filesInSession = \sfmobile\ext\fileUploader\models\FileInSession::listItems($modelName, $attribute);
 foreach($filesInSession as $fis)
 {
     $mimeType = $fis->fileUploadAttributes['mime_type'];
@@ -34,7 +36,7 @@ foreach($filesInSession as $fis)
 <?php
 echo \kartik\file\FileInput::widget([
     'model' => $model,
-    'attribute' => $attributeName.'[]',
+    'attribute' => $attribute.'[]',
     'options' => [
         'accept' => $acceptedTypes,
         'multiple' => true,
