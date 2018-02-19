@@ -1,6 +1,7 @@
 File uploader for Yii2
 ======================
-File uploader for Yii2
+
+Single and Multiple file uploader handler for Yii2
 
 Installation
 ------------
@@ -63,8 +64,18 @@ Usage
 Finally, inside view file insert code to show Kartik File Input widget:
 
 ```php
-<?= \sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::widget(['model' => $model, 'modelName' => 'nameOfModelClass', 'attributeName' => 'attributeNameOfModelClass', 'acceptedTypes' => 'image/*', 'maxFileCount' => 999]); ?>
+<?= \sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::widget(['model' => $model,  'attribute' => 'attributeNameOfModelClass', 'acceptedTypes' => 'application/pdf', 'maxFileCount' => 10]); ?>
 ```
+
+or inside an ActiveForm $form
+
+```php
+<?= $form->field($model, 'attributeNameOfModelClass')->widget(\sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::className(), [
+    'acceptedTypes' => 'application/pdf',
+    'maxFileCount' => 10
+]); ?>
+```
+
 
 and inside the controller change standard actionCreate as:
 
