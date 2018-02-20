@@ -9,7 +9,7 @@ $initialPreviewConfig = [];
 $filesInSession = \sfmobile\ext\fileUploader\models\FileInSession::listItems($modelName, $attribute);
 foreach($filesInSession as $fis)
 {
-    $mimeType = $fis->fileUploadAttributes['mime_type'];
+    $mimeType = $fis->fileMimeType;
 
     $initialPreview[] = \yii\helpers\Url::to([$moduleId.'/file-in-session/get', 'model' => $fis->modelName, 'attr' => $fis->attributeName, 'name' => $fis->fileName], true);
 
