@@ -21,7 +21,7 @@ use Yii;
  * @property string $relative_path
  * @property string $refer_table
  * @property string $create_time
- * @version 1.0.1
+ * @version 1.0.3
  */
 class FileUpload extends \yii\db\ActiveRecord
 {
@@ -69,7 +69,7 @@ class FileUpload extends \yii\db\ActiveRecord
             $fu->section = $section;
             $fu->category = $category;
             $fu->user_id = $userId;
-            $fu->file_name = sha1(basename($fis->fileName)).'.'.pathinfo( $fis->fileName, PATHINFO_EXTENSION);
+            $fu->file_name = sha1(basename($fis->fileName)).'.'.strtolower(pathinfo( $fis->fileName, PATHINFO_EXTENSION));
             $fu->file_name_original = $fis->fileName;
             $fu->mime_type = $fis->fileMimeType;
             $fu->file_size = $fis->fileSize;
@@ -84,7 +84,6 @@ class FileUpload extends \yii\db\ActiveRecord
 			}
 
             $fu->relative_path = $fu->relativePathFromDbRecord();
-
 
             // Controlla se il file già esiste
             $keyTrovatoTestFU = -1;
@@ -133,7 +132,6 @@ class FileUpload extends \yii\db\ActiveRecord
     public static function syncFilesFromSessiondAndRemoveFromSession($modelName, $attributeName, $section, $category, $userId, $referOptions)
     {
         $lstFileInSession = FileInSession::listItems($modelName, $attributeName);
-
         self::syncDatabaseFromListFilesSession($lstFileInSession, $section, $category, $userId, $referOptions);
         FileInSession::deleteListItems($modelName, $attributeName);
     }
