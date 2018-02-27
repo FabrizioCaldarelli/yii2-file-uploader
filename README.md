@@ -121,17 +121,53 @@ and standard actionUpdate as:
     }
 ```
 
-Finally, If you link files to a Model class, when you delete a record, you have to remove also the files inside afterDelete() method of Model class.
+Suggestions
+-----
+
+Now I tell you some suggestions to solve typical problems with upload file.
+
+#### 1) Delete files from filesystem when delete models
+
+Extend `tbl_file_upload` adding fields that refers to other table. If you have an `order` table, you can add "ref_order_id" to `tbl_file_upload`, that `SET NULL` in **upload** and **delete** cascade.
+Finally, in common\models, create a subclass of `\sfmobile\ext\fileUploader\models\FileUpload`, such as
+
+```php
+<?php
+
+namespace common\models;
+
+use Yii;
+
+class FileUpload extends \sfmobile\ext\fileUploader\models\FileUpload
+{
+    public static function deleteNotLinked()
+    {
+        $query = self::find()->andWhere([
+            'ref_order_id' => null,
+        ]);
+
+        foreach ($query->each(10) as $f) {
+            $f->delete();
+        }
+    }
+}
 
 ```
+
+When you will delete a record from `order` table with referred record in `tbl_file_upload`, record in `tbl_file_upload` will have `ref_order_id` set to **NULL**.
+So, in Order model you should extend afterDelete method to launch deleteNotLinked records from `tbl_file_upload`.
+
+```php
+<?php
+
+namespace common\models;
+
+class Order extends \yii\db\ActiveRecord
+{
     public function afterDelete()
     {
         parent::afterDelete();
 
-        $files = \sfmobile\ext\fileUploader\models\FileUpload::find()->andWhere(['refer_id' => $this->id])->all();
-        foreach($files as $f)
-        {
-            $f->delete();
-        }
+        \common\models\FileUpload::deleteNotLinked();
     }
 ```
