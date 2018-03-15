@@ -6,7 +6,7 @@ use yii\widgets\InputWidget;
 /**
 * Kartik File Input Widget Wrapper
 * @package sfmobile\ext\fileUploader\components\kartikFileInput
-* @version 1.0.1
+* @version 1.0.2
 */
 class KartikFileInput extends InputWidget {
 
@@ -28,6 +28,12 @@ class KartikFileInput extends InputWidget {
     */
     public $detectPreviewType = true;
 
+    /**
+    * @var string define form model prefixSessionKey attribute name
+    * @since 1.0.2
+    */
+    public $prefixSessionKeyAttribute = null;
+
     public function init(){
         parent::init();
     }
@@ -40,6 +46,7 @@ class KartikFileInput extends InputWidget {
             'acceptedTypes' => $this->acceptedTypes,
             'maxFileCount' => $this->maxFileCount,
             'detectPreviewType' => $this->detectPreviewType,
+            'prefixSessionKeyAttribute' => $this->prefixSessionKeyAttribute,
         ]);
     }
 }

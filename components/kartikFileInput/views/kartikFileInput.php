@@ -1,17 +1,36 @@
 <?php
 
+use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
+
+
 $modelName = \yii\helpers\StringHelper::basename(get_class($model));
 
 $moduleId = (\sfmobile\ext\fileUploader\Module::getInstance()->id);
 
+$prefixSessionKey = null;
+if($prefixSessionKeyAttribute!=null)
+{
+    $prefixSessionKeyAttributeNameParts = \sfmobile\ext\fileUploader\models\FileInSession::getAttributeNameParts($prefixSessionKeyAttribute);
+    if(count($prefixSessionKeyAttributeNameParts)>=3)
+    {
+        $prefixSessionKeyAttributeName = $prefixSessionKeyAttributeNameParts[2];
+        if (property_exists($model,$prefixSessionKeyAttributeName)) {
+           $prefixSessionKey = $model->$prefixSessionKeyAttributeName;
+        }
+    }
+}
+
 $initialPreview = [];
 $initialPreviewConfig = [];
-$filesInSession = \sfmobile\ext\fileUploader\models\FileInSession::listItems($modelName, $attribute);
+$filesInSession = \sfmobile\ext\fileUploader\models\FileInSession::listItems($modelName, $attribute, [ 'prefixSessionKey' => $prefixSessionKey ]);
+
+
 foreach($filesInSession as $fis)
 {
     $mimeType = $fis->fileMimeType;
 
-    $initialPreview[] = \yii\helpers\Url::to([$moduleId.'/file-in-session/get', 'model' => $fis->modelName, 'attr' => $fis->attributeName, 'name' => $fis->fileName], true);
+    $initialPreview[] = \yii\helpers\Url::to([$moduleId.'/file-in-session/get', 'model' => $fis->modelName, 'attr' => $fis->attributeName, 'name' => $fis->fileName, 'psk' => $prefixSessionKey], true);
 
     $previewType = 'image';
 
@@ -29,11 +48,17 @@ foreach($filesInSession as $fis)
         'type' => $previewType,
         'caption' => $fis->fileName,
         'size' => $fis->fileSize,
-        'url' => \yii\helpers\Url::to([$moduleId.'/file-in-session/delete', 'model' => $fis->modelName, 'attr' => $fis->attributeName, 'name' => $fis->fileName], true)
+        'url' => \yii\helpers\Url::to([$moduleId.'/file-in-session/delete', 'model' => $fis->modelName, 'attr' => $fis->attributeName, 'name' => $fis->fileName, 'psk' => $prefixSessionKey], true)
    ];
 }
 ?>
 <?php
+
+if($prefixSessionKeyAttribute!=null)
+{
+    echo Html::activeHiddenInput($model, $prefixSessionKeyAttribute);
+}
+
 echo \kartik\file\FileInput::widget([
     'model' => $model,
     'attribute' => $attribute.'[]',

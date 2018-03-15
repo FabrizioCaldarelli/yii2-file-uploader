@@ -3,11 +3,13 @@
 namespace sfmobile\ext\fileUploader\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
 * Handle files in SESSION
+* Options can contain: prefixSessionKey to add a prefix to session key (to distinguish different page using same browser)
 * @package sfmobile\ext\fileUploader\models
-* @version 1.0.3
+* @version 1.0.4
 */
 class FileInSession extends \yii\base\Model
 {
@@ -78,7 +80,10 @@ class FileInSession extends \yii\base\Model
 		return $retVal;
 	}
 
-    public static function createListFromModel($lstFilesUpload, $modelName, $attributeName)
+    /**
+    * @param $options Contains : prefixSessionKey
+    */
+    public static function createListFromModel($lstFilesUpload, $modelName, $attributeName, $options = null)
     {
         $arrObj = [];
 
@@ -97,15 +102,17 @@ class FileInSession extends \yii\base\Model
             $arrObj[$fu->file_name_original] = $fis;
         }
 
+        $prefixSessionKey = ArrayHelper::getValue($options, 'prefixSessionKey', '');
+
         // Salva in sessione
-        $key = $modelName.'.'.$attributeName;
+        $key = $prefixSessionKey.$modelName.'.'.$attributeName;
         $session = \Yii::$app->session;
         $session->set($key, $arrObj);
 
         return $arrObj;
     }
 
-    public static function createListFromForm($modelName, $attributeName)
+    public static function createListFromForm($modelName, $attributeName, $options = null)
     {
         $attributeNamePartTabularIndex = null;
 
@@ -139,7 +146,7 @@ class FileInSession extends \yii\base\Model
                             $formInputInfo = [ 'name' => $fuName, 'type' => $fuType, 'error' => $fuError, 'tmpName' => $fuTmpName, 'size' => $fuSize ];
 
                             $fuData = file_get_contents($fuTmpName);
-                            $fileInSession = self::create($modelName, $attributeName, $formInputInfo, null, $fuData);
+                            $fileInSession = self::create($modelName, $attributeName, $formInputInfo, null, $fuData, $options);
 
                             $arrOut[] = $fileInSession;
                         }
@@ -151,18 +158,18 @@ class FileInSession extends \yii\base\Model
         return $arrOut;
     }
 
-    public static function initFromModelOrCreateFromForm($modelName, $attributeName, $lstModelFiles)
+    public static function initFromModelOrCreateFromForm($modelName, $attributeName, $lstModelFiles, $options = null)
     {
-        $arrFilesInSessionPerAttributeName = FileInSession::createListFromForm($modelName, $attributeName);
+        $arrFilesInSessionPerAttributeName = FileInSession::createListFromForm($modelName, $attributeName, $options);
 
         if((count($arrFilesInSessionPerAttributeName) == 0)&&(isset($_POST[$modelName]) == false))
         {
             // Inizializza i files
-            FileInSession::createListFromModel($lstModelFiles, $modelName, $attributeName);
+            FileInSession::createListFromModel($lstModelFiles, $modelName, $attributeName, $options);
         }
     }
 
-    public static function create($modelName, $attributeName, $formInputInfo, $fileUploadAttributes, $data)
+    public static function create($modelName, $attributeName, $formInputInfo, $fileUploadAttributes, $data, $options = null)
     {
         $obj = new self();
         $obj->modelName = $modelName;
@@ -173,8 +180,10 @@ class FileInSession extends \yii\base\Model
 
         $filename = $formInputInfo['name'];
 
+        $prefixSessionKey = ArrayHelper::getValue($options, 'prefixSessionKey', '');
+
         // Salva in sessione
-        $key = $modelName.'.'.$attributeName;
+        $key = $prefixSessionKey.$modelName.'.'.$attributeName;
         $session = \Yii::$app->session;
         $arrObj = [];
         if($session->has($key)) $arrObj = $session->get($key);
@@ -184,20 +193,24 @@ class FileInSession extends \yii\base\Model
         return $obj;
     }
 
-    public static function listItems($modelName, $attributeName)
+    public static function listItems($modelName, $attributeName, $options = null)
     {
+        $prefixSessionKey = ArrayHelper::getValue($options, 'prefixSessionKey', '');
+
         // Recupera dalla sessione
-        $key = $modelName.'.'.$attributeName;
+        $key = $prefixSessionKey.$modelName.'.'.$attributeName;
         $session = \Yii::$app->session;
         $arrObj = [];
         if($session->has($key)) $arrObj = $session->get($key);
         return $arrObj;
     }
 
-    public static function getItem($modelName, $attributeName, $filename)
+    public static function getItem($modelName, $attributeName, $filename, $options = null)
     {
+        $prefixSessionKey = ArrayHelper::getValue($options, 'prefixSessionKey', '');
+
         // Recupera dalla sessione
-        $key = $modelName.'.'.$attributeName;
+        $key = $prefixSessionKey.$modelName.'.'.$attributeName;
         $session = \Yii::$app->session;
         $arrObj = [];
         if($session->has($key)) $arrObj = $session->get($key);
@@ -207,16 +220,20 @@ class FileInSession extends \yii\base\Model
         return $obj;
     }
 
-    public static function deleteListItems($modelName, $attributeName)
+    public static function deleteListItems($modelName, $attributeName, $options = null)
     {
-        $key = $modelName.'.'.$attributeName;
+        $prefixSessionKey = ArrayHelper::getValue($options, 'prefixSessionKey', '');
+
+        $key = $prefixSessionKey.$modelName.'.'.$attributeName;
         $session = \Yii::$app->session;
         $session->remove($key);
     }
 
-    public static function deleteItem($modelName, $attributeName, $filename)
+    public static function deleteItem($modelName, $attributeName, $filename, $options = null)
     {
-        $key = $modelName.'.'.$attributeName;
+        $prefixSessionKey = ArrayHelper::getValue($options, 'prefixSessionKey', '');
+
+        $key = $prefixSessionKey.$modelName.'.'.$attributeName;
         $session = \Yii::$app->session;
         $arrObj = [];
         if($session->has($key)) $arrObj = $session->get($key);
