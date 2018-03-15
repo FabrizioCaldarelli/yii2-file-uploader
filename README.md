@@ -61,10 +61,37 @@ yii migrate --migrationPath=@vendor/fabriziocaldarelli/yii2-file-uploader/migrat
 Usage
 -----
 
+I suggest to create ModelForm class that extends Model class and add an attribute to prefix session key 
+with a random string.
+
+```php
+<?php
+namespace backend\models;
+
+use yii\helpers\ArrayHelper;
+
+class ModelForm extends \common\models\Model
+{
+    public $modelPrefixSessionKeyAttribute;
+
+    public function rules()
+    {
+        return ArrayHelper::merge([
+            [['modelPrefixSessionKeyAttribute'], 'safe'],    
+        ]);
+    }
+```
+
 Finally, inside view file insert code to show Kartik File Input widget:
 
 ```php
-<?= \sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::widget(['model' => $model,  'attribute' => 'attributeNameOfModelClass', 'acceptedTypes' => 'application/pdf', 'maxFileCount' => 10]); ?>
+<?= \sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::widget([
+    'model' => $model,  
+    'attribute' => 'attributeNameOfModelClass', 
+    'acceptedTypes' => 'application/pdf', 
+    'maxFileCount' => 10,
+    'prefixSessionKeyAttribute' => 'modelPrefixSessionKeyAttribute'
+]); ?>
 ```
 
 or inside an ActiveForm $form
@@ -72,24 +99,27 @@ or inside an ActiveForm $form
 ```php
 <?= $form->field($model, 'attributeNameOfModelClass')->widget(\sfmobile\ext\fileUploader\components\kartikFileInput\KartikFileInput::className(), [
     'acceptedTypes' => 'application/pdf',
-    'maxFileCount' => 10
+    'maxFileCount' => 10,
+    'prefixSessionKeyAttribute' => 'modelPrefixSessionKeyAttribute'    
 ]); ?>
 ```
 
 
 and inside the controller change standard actionCreate as:
 
-```
+```php
     public function actionCreate()
     {
-        $model = new Model();
+        $model = new ModelForm();
 
-        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName);
+        $model->modelPrefixSessionKeyAttribute = ArrayHelper::getValue($_POST, 'modelPrefixSessionKeyAttribute', Yii::$app->getSecurity()->generateRandomString());
+
+        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName, ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // Sync files
-            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);
+            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ], ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -101,17 +131,19 @@ and inside the controller change standard actionCreate as:
 
 and standard actionUpdate as:
 
-```
+```php
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
 
-        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName);
+        $model->modelPrefixSessionKeyAttribute = ArrayHelper::getValue($_POST, 'modelPrefixSessionKeyAttribute', Yii::$app->getSecurity()->generateRandomString());
+
+        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName, ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // Sync files
-            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ]);
+            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ], ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
