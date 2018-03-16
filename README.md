@@ -29,6 +29,7 @@ Configuration
 Once the extension is installed, configure it in config\main.php setting imageBaseUrl, fileUploadBasePath and fileUploadBaseUrl :
 
 **1) Add fileUploader module to config.php**
+
 ```php
 'modules' => [
     'fileUploader' => [
@@ -48,7 +49,7 @@ Once the extension is installed, configure it in config\main.php setting imageBa
 
 **2) Add the module in bootstrap section of config\main.php**
 
-```
+```php
 'bootstrap' => ['log', 'fileUploader'],
 ```
 
@@ -112,14 +113,12 @@ and inside the controller change standard actionCreate as:
     {
         $model = new ModelForm();
 
-        $model->modelPrefixSessionKeyAttribute = ArrayHelper::getValue($_POST, 'modelPrefixSessionKeyAttribute', Yii::$app->getSecurity()->generateRandomString());
-
-        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName, ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
+        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm($model, 'attributeNameOfModelClass', $model->filesOfAttributeName, ['prefixSessionKeyAttribute' => 'modelPrefixSessioneKeyAttribute')';
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // Sync files
-            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ], ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
+            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession($model, 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ], ['prefixSessionKeyAttribute' => 'modelPrefixSessioneKeyAttribute');
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -138,12 +137,12 @@ and standard actionUpdate as:
 
         $model->modelPrefixSessionKeyAttribute = ArrayHelper::getValue($_POST, 'modelPrefixSessionKeyAttribute', Yii::$app->getSecurity()->generateRandomString());
 
-        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm('nameOfModelClass', 'attributeNameOfModelClass', $model->filesOfAttributeName, ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
+        \sfmobile\ext\fileUploader\models\FileInSession::initFromModelOrCreateFromForm($model, 'attributeNameOfModelClass', $model->filesOfAttributeName, ['prefixSessionKeyAttribute' => 'modelPrefixSessioneKeyAttribute')';
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
 
             // Sync files
-            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession('nameOfModelClass', 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ], ['prefixSessionKey' => $model->modelPrefixSessioneKeyAttribute);
+            \sfmobile\ext\fileUploader\models\FileUpload::syncFilesFromSessiondAndRemoveFromSession($model, 'attributeNameOfModelClass', 'section', 'category', \Yii::$app->user->identity->id, [ 'refer_id' => $model->id ], ['prefixSessionKeyAttribute' => 'modelPrefixSessioneKeyAttribute');
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('update', [
