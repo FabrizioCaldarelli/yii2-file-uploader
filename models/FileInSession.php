@@ -9,7 +9,7 @@ use yii\helpers\ArrayHelper;
 * Handle files in SESSION
 * Options can contain: prefixSessionKey to add a prefix to session key (to distinguish different page using same browser)
 * @package sfmobile\ext\fileUploader\models
-* @version 1.0.4
+* @version 1.0.5
 */
 class FileInSession extends \yii\base\Model
 {
@@ -134,6 +134,8 @@ class FileInSession extends \yii\base\Model
                 {
                     if(is_array($temp) == false) continue;
 
+                    if($key != $attributeName) continue;
+
                     for($j=0;$j<count($lstFuTmpName[$key]);$j++)
                     {
                         $fuName = $lstFuName[$key][$j];
@@ -158,8 +160,29 @@ class FileInSession extends \yii\base\Model
         return $arrOut;
     }
 
-    public static function initFromModelOrCreateFromForm($modelName, $attributeName, $lstModelFiles, $options = null)
+    public static function initFromModelOrCreateFromForm($modelOrModelName, $attributeName, $lstModelFiles, $options = null)
     {
+        $modelName = null;
+        if(is_string($modelOrModelName))
+        {
+            $modelName = $modelOrModelName;
+        }
+        else if(is_object($modelOrModelName))
+        {
+            $modelName = (new \ReflectionClass($modelOrModelName))->getShortName();
+
+            $prefixSessionKeyAttribute = ArrayHelper::getValue($options, 'prefixSessionKeyAttribute');
+            if($prefixSessionKeyAttribute!=null)
+            {
+                if (property_exists($modelOrModelName,$prefixSessionKeyAttribute)) {
+
+                   $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, $modelName.'.'.$prefixSessionKeyAttribute, Yii::$app->getSecurity()->generateRandomString());
+
+                   $modelOrModelName->$prefixSessionKeyAttribute = $options['prefixSessionKey'];
+                }
+            }
+        }
+
         $arrFilesInSessionPerAttributeName = FileInSession::createListFromForm($modelName, $attributeName, $options);
 
         if((count($arrFilesInSessionPerAttributeName) == 0)&&(isset($_POST[$modelName]) == false))

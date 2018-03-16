@@ -3,6 +3,7 @@
 namespace sfmobile\ext\fileUploader\models;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "tbl_file_upload".
@@ -21,7 +22,7 @@ use Yii;
  * @property string $relative_path
  * @property string $refer_table
  * @property string $create_time
- * @version 1.0.4
+ * @version 1.0.5
  */
 class FileUpload extends \yii\db\ActiveRecord
 {
@@ -129,8 +130,29 @@ class FileUpload extends \yii\db\ActiveRecord
         return $arrOut;
     }
 
-    public static function syncFilesFromSessiondAndRemoveFromSession($modelName, $attributeName, $section, $category, $userId, $referOptions, $options = null)
+    public static function syncFilesFromSessiondAndRemoveFromSession($modelOrModelName, $attributeName, $section, $category, $userId, $referOptions, $options = null)
     {
+        $modelName = null;
+        if(is_string($modelOrModelName))
+        {
+            $modelName = $modelOrModelName;
+        }
+        else if(is_object($modelOrModelName))
+        {
+            $modelName = (new \ReflectionClass($modelOrModelName))->getShortName();
+
+            $prefixSessionKeyAttribute = ArrayHelper::getValue($options, 'prefixSessionKeyAttribute');
+            if($prefixSessionKeyAttribute!=null)
+            {
+                if (property_exists($modelOrModelName,$prefixSessionKeyAttribute)) {
+
+                   $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, $modelName.'.'.$prefixSessionKeyAttribute);
+
+                   $modelOrModelName->$prefixSessionKeyAttribute = $options['prefixSessionKey'];
+                }
+            }
+        }
+
         $lstFileInSession = FileInSession::listItems($modelName, $attributeName, $options);
         self::syncDatabaseFromListFilesSession($lstFileInSession, $section, $category, $userId, $referOptions, $options);
         FileInSession::deleteListItems($modelName, $attributeName, $options);
