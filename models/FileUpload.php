@@ -146,9 +146,18 @@ class FileUpload extends \yii\db\ActiveRecord
             {
                 if (property_exists($modelOrModelName,$prefixSessionKeyAttribute)) {
 
-                   $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, $modelName.'.'.$prefixSessionKeyAttribute);
+                    $indexFormModel = ArrayHelper::getValue($options, 'indexFormModel');
 
-                   $modelOrModelName->$prefixSessionKeyAttribute = $options['prefixSessionKey'];
+                    if($indexFormModel !== null)
+                    {
+                        $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, [ $modelName, $indexFormModel, $prefixSessionKeyAttribute ], Yii::$app->getSecurity()->generateRandomString());
+                    }
+                    else
+                    {
+                        $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, [ $modelName, $prefixSessionKeyAttribute ], Yii::$app->getSecurity()->generateRandomString());
+                    }
+
+                    $modelOrModelName->$prefixSessionKeyAttribute = $options['prefixSessionKey'];
                 }
             }
         }

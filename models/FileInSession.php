@@ -118,6 +118,7 @@ class FileInSession extends \yii\base\Model
 
         $attributeNameParts = self::getAttributeNameParts($attributeName);
         if($attributeNameParts[1]!='') $attributeNamePartTabularIndex = substr($attributeNameParts[1], 1, strlen($attributeNameParts[1])-2);
+        if($attributeNameParts[2]!='') $attributeNamePartName = $attributeNameParts[2];
 
         $arrOut = [];
         if(isset($_FILES[$modelName]))
@@ -134,7 +135,7 @@ class FileInSession extends \yii\base\Model
                 {
                     if(is_array($temp) == false) continue;
 
-                    if($key != $attributeName) continue;
+                    if($key != $attributeNamePartName) continue;
 
                     for($j=0;$j<count($lstFuTmpName[$key]);$j++)
                     {
@@ -176,9 +177,18 @@ class FileInSession extends \yii\base\Model
             {
                 if (property_exists($modelOrModelName,$prefixSessionKeyAttribute)) {
 
-                   $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, $modelName.'.'.$prefixSessionKeyAttribute, Yii::$app->getSecurity()->generateRandomString());
+                    $indexFormModel = ArrayHelper::getValue($options, 'indexFormModel');
 
-                   $modelOrModelName->$prefixSessionKeyAttribute = $options['prefixSessionKey'];
+                    if($indexFormModel !== null)
+                    {
+                        $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, [ $modelName, $indexFormModel, $prefixSessionKeyAttribute ], Yii::$app->getSecurity()->generateRandomString());
+                    }
+                    else
+                    {
+                        $options['prefixSessionKey'] = ArrayHelper::getValue($_REQUEST, [ $modelName, $prefixSessionKeyAttribute ], Yii::$app->getSecurity()->generateRandomString());
+                    }
+
+                    $modelOrModelName->$prefixSessionKeyAttribute = $options['prefixSessionKey'];
                 }
             }
         }
