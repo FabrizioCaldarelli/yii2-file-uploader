@@ -75,6 +75,7 @@ echo \kartik\file\FileInput::widget([
         'showRemove' => true,
         'showUpload' => false,
         'overwriteInitial' => false,
+        'validateInitialCount' => true,
 
         'initialPreview'=> $initialPreview,
         'initialPreviewAsData'=>true,
