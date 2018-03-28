@@ -22,7 +22,7 @@ use yii\helpers\ArrayHelper;
  * @property string $relative_path
  * @property string $refer_table
  * @property string $create_time
- * @version 1.0.5
+ * @version 1.0.5.1
  */
 class FileUpload extends \yii\db\ActiveRecord
 {
@@ -130,6 +130,11 @@ class FileUpload extends \yii\db\ActiveRecord
         return $arrOut;
     }
 
+    /**
+    * Sync files from session and remove them from session at the end
+    * @return FileUpload[] saved uploaded files
+    * @since 1.0.5.1
+    */
     public static function syncFilesFromSessiondAndRemoveFromSession($modelOrModelName, $attributeName, $section, $category, $userId, $referOptions, $options = null)
     {
         $modelName = null;
@@ -163,8 +168,10 @@ class FileUpload extends \yii\db\ActiveRecord
         }
 
         $lstFileInSession = FileInSession::listItems($modelName, $attributeName, $options);
-        self::syncDatabaseFromListFilesSession($lstFileInSession, $section, $category, $userId, $referOptions, $options);
+        $arrSyncedFiles = self::syncDatabaseFromListFilesSession($lstFileInSession, $section, $category, $userId, $referOptions, $options);
         FileInSession::deleteListItems($modelName, $attributeName, $options);
+
+        return $arrSyncedFiles;
     }
 
     /**
