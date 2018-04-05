@@ -68,6 +68,7 @@ echo \kartik\file\FileInput::widget([
     ],
     'pluginOptions' => [
         'maxFileCount' => $maxFileCount,
+        'minFileCount' => $minFileCount,
 
         'previewFileType' => 'any',
         'showPreview' => true,
