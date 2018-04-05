@@ -60,6 +60,7 @@ class KartikFileInput extends InputWidget {
             'detectPreviewType' => $this->detectPreviewType,
             'prefixSessionKeyAttribute' => $this->prefixSessionKeyAttribute,
             'validateInitialCount' => $this->validateInitialCount,
+            'minFileCount' => $this->minFileCount,
         ]);
     }
 }
